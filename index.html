@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmpregaCWB - O emprego perto da sua casa em Curitiba</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Header / Branding -->
+    <header class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('vagas')">
+                <div class="bg-white text-emerald-600 p-2.5 rounded-2xl shadow-inner flex items-center justify-center font-black text-xl">
+                    <i data-lucide="briefcase" class="w-7 h-7 text-emerald-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight flex items-center gap-1.5">
+                        Emprega<span class="text-emerald-200">CWB</span>
+                    </h1>
+                    <p class="text-xs text-emerald-100 font-medium">O emprego perto da sua casa em Curitiba</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex items-center bg-emerald-800/50 p-1.5 rounded-xl text-sm font-medium w-full sm:w-auto">
+                <button id="tab-btn-vagas" onclick="switchTab('vagas')" 
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 bg-white text-emerald-800 shadow-sm font-semibold text-xs sm:text-sm">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    Buscar Vagas
+                </button>
+                <button id="tab-btn-curriculo" onclick="switchTab('curriculo')" 
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-emerald-100 hover:text-white hover:bg-emerald-700/50 text-xs sm:text-sm">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                    Meu Currículo
+                </button>
+                <button id="tab-btn-publicar" onclick="switchTab('publicar')" 
+                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-emerald-100 hover:text-white hover:bg-emerald-700/50 text-xs sm:text-sm">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    Publicar Vaga
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- TAB 1: BUSCAR VAGAS -->
+        <section id="section-vagas" class="space-y-6">
+            
+            <!-- Banner / Intro -->
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-3xl p-6 sm:p-8 shadow-md relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-emerald-700/60 text-emerald-100 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3 inline-block border border-emerald-400/30">
+                        Match de Requisitos em Tempo Real
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">Trabalhe perto de onde você mora em Curitiba</h2>
+                    <p class="text-emerald-100 text-sm sm:text-base">Preencha seu currículo uma vez e veja na hora quais vagas dão <b>Match ✅</b> com as suas habilidades antes de enviar no WhatsApp!</p>
+                </div>
+                <i data-lucide="map-pin" class="absolute -right-6 -bottom-6 w-48 h-48 text-white/10 pointer-events-none"></i>
+            </div>
+
+            <!-- Alerta para preencher o currículo se não tiver feito ainda -->
+            <div id="alert-no-cv" class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 text-xs sm:text-sm">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600 shrink-0"></i>
+                    <span>Você ainda não cadastrou seu currículo! Cadastre para ver a porcentagem de match com as vagas.</span>
+                </div>
+                <button onclick="switchTab('curriculo')" class="px-4 py-1.5 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors shrink-0">
+                    Preencher Currículo
+                </button>
+            </div>
+
+            <!-- Busca e Filtros -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+                
+                <!-- Barra de Pesquisa por Texto/Bairro -->
+                <div class="relative">
+                    <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" oninput="renderJobs()"
+                        placeholder="Busque por cargo ou bairro (ex: Boa Vista, Batel, Caixa, Atendimento)..."
+                        class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm transition-all">
+                </div>
+
+                <!-- Botões de Filtros Rápidos -->
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button onclick="setFilter('todos')" id="filter-btn-todos" 
+                        class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-emerald-600 bg-emerald-600 text-white shadow-xs">
+                        Todas as Vagas
+                    </button>
+                    <button onclick="setFilter('clt')" id="filter-btn-clt" 
+                        class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        CLT Normal
+                    </button>
+                    <button onclick="setFilter('temp')" id="filter-btn-temp" 
+                        class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        Temporária / Freelancer
+                    </button>
+                    <button onclick="setFilter('noturna')" id="filter-btn-noturna" 
+                        class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        🌙 Vagas Noturnas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div class="flex items-center justify-between px-1">
+                <p id="job-count" class="text-sm font-semibold text-slate-600">Carregando vagas...</p>
+                <span class="text-xs text-slate-400 flex items-center gap-1">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i> Compatibilidade ativada
+                </span>
+            </div>
+
+            <!-- Lista / Grid de Vagas -->
+            <div id="jobs-container" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Os cards serão injetados via JavaScript aqui -->
+            </div>
+
+            <!-- Estado Vazio -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 p-6">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <i data-lucide="briefcase-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Nenhuma vaga encontrada</h3>
+                <p class="text-slate-500 text-sm max-w-sm mx-auto mt-1 mb-5">Tente mudar o termo da busca ou selecione outro filtro para ver mais vagas disponíveis em Curitiba.</p>
+                <button onclick="clearSearch()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-xl transition-all">
+                    Limpar Filtros
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 2: MEU CURRÍCULO (NOVA) -->
+        <section id="section-curriculo" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="mb-6 border-b border-slate-100 pb-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-6 h-6 text-emerald-600"></i>
+                            Meu Currículo Simplificado
+                        </h2>
+                        <p class="text-slate-500 text-sm mt-1">Insira suas informações. Elas serão salvas no seu aparelho para candidatura rápida em 1 clique.</p>
+                    </div>
+                </div>
+
+                <form id="cv-form" onsubmit="handleCvSubmit(event)" class="space-y-5">
+                    <!-- Nome e Telefone -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Nome Completo *</label>
+                            <input type="text" id="cv-nome" required placeholder="Ex: Maria da Silva"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">WhatsApp de Contato *</label>
+                            <input type="tel" id="cv-whatsapp" required placeholder="41 99999-8888"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Bairro e Cargo Pretendido -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Bairro Onde Mora em Curitiba *</label>
+                            <select id="cv-bairro" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                                <option value="">Selecione o Bairro...</option>
+                                <option value="Água Verde">Água Verde</option>
+                                <option value="Atuba">Atuba</option>
+                                <option value="Batel">Batel</option>
+                                <option value="Boa Vista">Boa Vista</option>
+                                <option value="Boqueirão">Boqueirão</option>
+                                <option value="Cabral">Cabral</option>
+                                <option value="Centro">Centro</option>
+                                <option value="CIC">CIC</option>
+                                <option value="Portão">Portão</option>
+                                <option value="Santa Cândida">Santa Cândida</option>
+                                <option value="Sítio Cercado">Sítio Cercado</option>
+                                <option value="Outro Bairro CWB">Outro Bairro de Curitiba</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Cargo / Área Pretendida *</label>
+                            <input type="text" id="cv-cargo" required placeholder="Ex: Atendente / Caixa / Vendas"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Habilidades / Competências (Tags Selecionáveis) -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Suas Habilidades & Competências *
+                        </label>
+                        <p class="text-xs text-slate-500 mb-3">Marque abaixo as competências que você possui para o sistema calcular seus <b>Checks Verdes ✅</b>:</p>
+                        
+                        <div id="skills-selector" class="flex flex-wrap gap-2">
+                            <!-- Habilidades Padrão Interativas -->
+                        </div>
+                    </div>
+
+                    <!-- Escolaridade -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Escolaridade / Formação *</label>
+                        <select id="cv-escolaridade" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                            <option value="Ensino Fundamental Completo">Ensino Fundamental Completo</option>
+                            <option value="Ensino Médio Cursando">Ensino Médio Cursando</option>
+                            <option value="Ensino Médio Completo" selected>Ensino Médio Completo</option>
+                            <option value="Ensino Superior Cursando">Ensino Superior Cursando</option>
+                            <option value="Ensino Superior Completo">Ensino Superior Completo</option>
+                        </select>
+                    </div>
+
+                    <!-- Experiência Profissional -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Resumo das Experiências Anteriores *</label>
+                        <textarea id="cv-experiencias" rows="3" required
+                            placeholder="Ex: Empresa X (2022-2023) - Cargo: Atendente de Loja. Atividades: Caixa, recepção de clientes e reposição."
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- Resumo / Apresentação -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Pequena Apresentação / Resumo</label>
+                        <textarea id="cv-apresentacao" rows="2"
+                            placeholder="Ex: Sou uma pessoa comunicativa, pontual, disposta a aprender e busco oportunidade perto de casa."
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- Botão Salvar Currículo -->
+                    <div class="pt-3">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="w-5 h-5"></i>
+                            Salvar Meu Currículo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: PUBLICAR VAGA -->
+        <section id="section-publicar" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                
+                <div class="mb-6 border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-6 h-6 text-emerald-600"></i>
+                        Anunciar Nova Vaga de Emprego
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">Preencha os detalhes e defina as habilidades exigidas para atuar no sistema de Match.</p>
+                </div>
+
+                <form id="job-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                    
+                    <!-- Título da Vaga -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Título da Vaga / Cargo *
+                        </label>
+                        <input type="text" id="form-titulo" required
+                            placeholder="Ex: Atendente de Balcão, Garçom, Auxiliar de Estoque"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                    </div>
+
+                    <!-- Endereço Completo -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Endereço Completo com Bairro *
+                        </label>
+                        <input type="text" id="form-endereco" required
+                            placeholder="Ex: Rua Fernando de Noronha, 100 - Boa Vista"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        <span class="text-[11px] text-slate-400 mt-1 block">Especifique bem o bairro para atrair quem mora perto.</span>
+                    </div>
+
+                    <!-- Grid: Tipo de Vaga + Turno Noturno -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Tipo de Vaga *
+                            </label>
+                            <select id="form-tipo" required
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                                <option value="CLT">CLT Normal</option>
+                                <option value="Temporária / Freelancer">Temporária / Freelancer</option>
+                                <option value="PJ">PJ (Pessoa Jurídica)</option>
+                                <option value="Estágio">Estágio</option>
+                            </select>
+                        </div>
+
+                        <!-- Checkbox Turno Noturno -->
+                        <div class="flex items-center pt-5">
+                            <label class="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl w-full cursor-pointer hover:bg-amber-100/60 transition-colors">
+                                <input type="checkbox" id="form-noturna" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 border-slate-300">
+                                <div class="text-xs">
+                                    <span class="font-bold text-amber-900 block">🌙 Vaga Noturna</span>
+                                    <span class="text-amber-700">Horário após as 22h</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Grid: Carga Horária + Pretensão Salarial -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Carga Horária *
+                            </label>
+                            <input type="text" id="form-cargahoraria" required
+                                placeholder="Ex: 44h semanais, Escala 6x1, 22h às 06h"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Pretensão Salarial / Salário + VR *
+                            </label>
+                            <input type="text" id="form-salario" required
+                                placeholder="Ex: R$ 2.200 + VR R$ 35/dia + VT"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Seleção de Requisitos para o Match com Habilidades do Candidato -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Requisitos Obrigatórios / Competências Exigidas *
+                        </label>
+                        <p class="text-xs text-slate-500 mb-2">Selecione as competências chave para o sistema verificar compatibilidade com o currículo:</p>
+                        <div id="job-req-selector" class="flex flex-wrap gap-2 mb-3">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Requisitos em Texto livre -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Outros Requisitos (Detalhes) *
+                        </label>
+                        <textarea id="form-requisitos" rows="2" required
+                            placeholder="Ex: Morar próximo ao Boa Vista, disponibilidade para início imediato."
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- Atividades -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Atividades a serem desempenhadas *
+                        </label>
+                        <textarea id="form-atividades" rows="2" required
+                            placeholder="Ex: Atendimento no caixa, organização de produtos e controle de estoque."
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- WhatsApp para Contato -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            WhatsApp do Contato (DDD + Número) *
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">+55</span>
+                            <input type="tel" id="form-whatsapp" required
+                                placeholder="41 99999-9999"
+                                class="w-full pl-14 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Botão Salvar -->
+                    <div class="pt-3">
+                        <button type="submit" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                            Publicar Vaga em Curitiba
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="font-bold text-slate-700">EmpregaCWB © 2026 - O Portal de Vagas Bairro a Bairro de Curitiba</p>
+            <p class="mt-1">Conectando moradores e comércios locais sem complicação.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT ATUALIZADA -->
+    <script>
+        // Lista de Habilidades Padrão do Sistema
+        const availableSkills = [
+            "Atendimento ao Cliente",
+            "Pacote Office",
+            "Operação de Caixa",
+            "Boa Comunicação",
+            "Agilidade",
+            "Vendas",
+            "CNH Categoria B",
+            "Informática Básica",
+            "Trabalho em Equipe",
+            "Organização de Estoque",
+            "Pontualidade",
+            "Preparo de Bebidas/Café"
+        ];
+
+        // Estado do Currículo do Usuário (Carregado ou Vazio)
+        let userCV = JSON.parse(localStorage.getItem('empregaCWB_CV')) || null;
+        let selectedSkills = userCV ? userCV.habilidades : ["Atendimento ao Cliente", "Boa Comunicação", "Agilidade"];
+
+        // Habilidades Selecionadas na criação de uma nova vaga
+        let selectedJobReqs = ["Atendimento ao Cliente", "Agilidade"];
+
+        // Banco de Dados em Memória com Exemplos de Curitiba
+        const jobsData = [
+            {
+                id: 1,
+                titulo: "Atendente de Pizzaria Noturno",
+                endereco: "Rua Fernando de Noronha, 1050 - Boa Vista",
+                bairro: "Boa Vista",
+                cargahoraria: "Escala 6x1 (17h00 às 01h20)",
+                salario: "R$ 2.150,00 + Adicional Noturno + VR R$ 32/dia",
+                reqsChave: ["Atendimento ao Cliente", "Agilidade", "Boa Comunicação", "Trabalho em Equipe"],
+                requisitos: "Ensino médio completo, facilidade com atendimento e morar no Boa Vista ou proximidades.",
+                atividades: "Atendimento presencial e de pedidos via iFood, organização de embalagens e suporte ao caixa.",
+                tipo: "CLT",
+                noturna: true,
+                whatsapp: "5541999887766",
+                data: "Hoje"
+            },
+            {
+                id: 2,
+                titulo: "Operador de Caixa",
+                endereco: "Av. Marechal Deodoro, 450 - Centro",
+                bairro: "Centro",
+                cargahoraria: "44h semanais (Segunda a Sexta 09h às 18h / Sáb 09h às 13h)",
+                salario: "R$ 2.050,00 + Quebra de Caixa + VR R$ 38/dia + VT",
+                reqsChave: ["Operação de Caixa", "Informática Básica", "Pacote Office", "Agilidade"],
+                requisitos: "Experiência prévia em caixa de loja. Agilidade e boa pontualidade.",
+                atividades: "Abertura e fechamento de caixa, recebimento de pagamentos em cartão/PIX/dinheiro.",
+                tipo: "CLT",
+                noturna: false,
+                whatsapp: "5541988776655",
+                data: "Hoje"
+            },
+            {
+                id: 3,
+                titulo: "Atendente de Cafeteria / Barista",
+                endereco: "Rua Gonçalves Dias, 220 - Batel",
+                bairro: "Batel",
+                cargahoraria: "36h semanais (Escala 5x2 das 10h às 18h)",
+                salario: "R$ 2.400,00 + Gorjetas + VR R$ 35/dia",
+                reqsChave: ["Preparo de Bebidas/Café", "Atendimento ao Cliente", "Boa Comunicação"],
+                requisitos: "Interesse com café especial, simpatia e boa comunicação.",
+                atividades: "Preparo de bebidas com café, atendimento nas mesas e organização do salão.",
+                tipo: "CLT",
+                noturna: false,
+                whatsapp: "5541977665544",
+                data: "Ontem"
+            },
+            {
+                id: 4,
+                titulo: "Entregador Freelancer de Fim de Semana",
+                endereco: "Rua Guilherme Pugsley, 1400 - Água Verde",
+                bairro: "Água Verde",
+                cargahoraria: "Sexta, Sábado e Domingo (18h00 às 23h30)",
+                salario: "R$ 130,00/dia + R$ 8,00 por entrega",
+                reqsChave: ["CNH Categoria B", "Agilidade", "Pontualidade"],
+                requisitos: "Possuir veículo próprio, CNH regularizada e pontualidade.",
+                atividades: "Realizar entregas num raio de até 6km no Água Verde e Portão.",
+                tipo: "Temporária / Freelancer",
+                noturna: true,
+                whatsapp: "5541966554433",
+                data: "Hoje"
+            },
+            {
+                id: 5,
+                titulo: "Auxiliar de Estoque e Logística",
+                endereco: "Rua Pedro Gusso, 3200 - CIC",
+                bairro: "CIC",
+                cargahoraria: "44h semanais (Segunda a Sexta 08h às 17h48)",
+                salario: "R$ 2.200,00 + VR R$ 30/dia + VT + Plano de Saúde",
+                reqsChave: ["Organização de Estoque", "Trabalho em Equipe", "Agilidade"],
+                requisitos: "Disposição física, atenção aos detalhes e trabalho em equipe.",
+                atividades: "Conferência de mercadorias, montagem de paletes e separação de pedidos.",
+                tipo: "CLT",
+                noturna: false,
+                whatsapp: "5541955443322",
+                data: "Há 2 dias"
+            }
+        ];
+
+        // Estado Global de Filtro
+        let currentFilter = 'todos';
+
+        // Inicialização
+        window.onload = function() {
+            renderSkillsSelector();
+            renderJobReqsSelector();
+            loadCvFormValues();
+            checkCvStatusAlert();
+            renderJobs();
+            lucide.createIcons();
+        };
+
+        // Troca de Abas
+        function switchTab(tab) {
+            const secVagas = document.getElementById('section-vagas');
+            const secCurriculo = document.getElementById('section-curriculo');
+            const secPublicar = document.getElementById('section-publicar');
+
+            const btnVagas = document.getElementById('tab-btn-vagas');
+            const btnCurriculo = document.getElementById('tab-btn-curriculo');
+            const btnPublicar = document.getElementById('tab-btn-publicar');
+
+            secVagas.classList.add('hidden');
+            secCurriculo.classList.add('hidden');
+            secPublicar.classList.add('hidden');
+
+            const inactiveStyle = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-emerald-100 hover:text-white hover:bg-emerald-700/50 text-xs sm:text-sm";
+            const activeStyle = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 bg-white text-emerald-800 shadow-sm font-semibold text-xs sm:text-sm";
+
+            btnVagas.className = inactiveStyle;
+            btnCurriculo.className = inactiveStyle;
+            btnPublicar.className = inactiveStyle;
+
+            if (tab === 'vagas') {
+                secVagas.classList.remove('hidden');
+                btnVagas.className = activeStyle;
+                renderJobs(); // Atualizar os matches
+            } else if (tab === 'curriculo') {
+                secCurriculo.classList.remove('hidden');
+                btnCurriculo.className = activeStyle;
+            } else if (tab === 'publicar') {
+                secPublicar.classList.remove('hidden');
+                btnPublicar.className = activeStyle;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Renderizar seletores de Habilidades
+        function renderSkillsSelector() {
+            const container = document.getElementById('skills-selector');
+            container.innerHTML = '';
+
+            availableSkills.forEach(skill => {
+                const isSelected = selectedSkills.includes(skill);
+                const badge = document.createElement('button');
+                badge.type = 'button';
+                badge.onclick = () => toggleSkill(skill);
+                badge.className = isSelected 
+                    ? "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-600 text-white border border-emerald-600 shadow-xs flex items-center gap-1"
+                    : "px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center gap-1";
+                
+                badge.innerHTML = isSelected ? `✓ ${skill}` : `+ ${skill}`;
+                container.appendChild(badge);
+            });
+        }
+
+        function toggleSkill(skill) {
+            if (selectedSkills.includes(skill)) {
+                selectedSkills = selectedSkills.filter(s => s !== skill);
+            } else {
+                selectedSkills.push(skill);
+            }
+            renderSkillsSelector();
+        }
+
+        // Renderizar Selector de Requisitos na Criação de Vaga
+        function renderJobReqsSelector() {
+            const container = document.getElementById('job-req-selector');
+            if(!container) return;
+            container.innerHTML = '';
+
+            availableSkills.forEach(skill => {
+                const isSelected = selectedJobReqs.includes(skill);
+                const badge = document.createElement('button');
+                badge.type = 'button';
+                badge.onclick = () => {
+                    if (selectedJobReqs.includes(skill)) {
+                        selectedJobReqs = selectedJobReqs.filter(s => s !== skill);
+                    } else {
+                        selectedJobReqs.push(skill);
+                    }
+                    renderJobReqsSelector();
+                };
+                badge.className = isSelected 
+                    ? "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-teal-600 text-white border border-teal-600 shadow-xs flex items-center gap-1"
+                    : "px-3 py-1.5 rounded-xl text-xs font-medium transition-all bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center gap-1";
+                
+                badge.innerHTML = isSelected ? `✓ Exigir ${skill}` : `+ ${skill}`;
+                container.appendChild(badge);
+            });
+        }
+
+        // Salvar Currículo do Usuário
+        function handleCvSubmit(e) {
+            e.preventDefault();
+
+            userCV = {
+                nome: document.getElementById('cv-nome').value.trim(),
+                whatsapp: document.getElementById('cv-whatsapp').value.trim(),
+                bairro: document.getElementById('cv-bairro').value,
+                cargo: document.getElementById('cv-cargo').value.trim(),
+                escolaridade: document.getElementById('cv-escolaridade').value,
+                experiencias: document.getElementById('cv-experiencias').value.trim(),
+                apresentacao: document.getElementById('cv-apresentacao').value.trim(),
+                habilidades: selectedSkills
+            };
+
+            localStorage.setItem('empregaCWB_CV', JSON.stringify(userCV));
+            checkCvStatusAlert();
+
+            alert('✅ Seu currículo foi salvo com sucesso no seu dispositivo!');
+            switchTab('vagas');
+        }
+
+        // Preencher formulário se já tiver dados salvos
+        function loadCvFormValues() {
+            if (!userCV) return;
+
+            document.getElementById('cv-nome').value = userCV.nome || '';
+            document.getElementById('cv-whatsapp').value = userCV.whatsapp || '';
+            document.getElementById('cv-bairro').value = userCV.bairro || '';
+            document.getElementById('cv-cargo').value = userCV.cargo || '';
+            document.getElementById('cv-escolaridade').value = userCV.escolaridade || 'Ensino Médio Completo';
+            document.getElementById('cv-experiencias').value = userCV.experiencias || '';
+            document.getElementById('cv-apresentacao').value = userCV.apresentacao || '';
+            
+            selectedSkills = userCV.habilidades || [];
+            renderSkillsSelector();
+        }
+
+        // Verificar e mostrar alerta de CV pendente
+        function checkCvStatusAlert() {
+            const alertBox = document.getElementById('alert-no-cv');
+            if (userCV) {
+                alertBox.classList.add('hidden');
+            } else {
+                alertBox.classList.remove('hidden');
+            }
+        }
+
+        // Alterar Filtro Ativo
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200";
+            });
+
+            const activeBtn = document.getElementById(`filter-btn-${filter}`);
+            if (activeBtn) {
+                activeBtn.className = "filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border border-emerald-600 bg-emerald-600 text-white shadow-xs";
+            }
+
+            renderJobs();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            setFilter('todos');
+        }
+
+        function extractBairro(endereco) {
+            if (endereco.includes('-')) {
+                const partes = endereco.split('-');
+                return partes[partes.length - 1].trim();
+            }
+            return 'Curitiba';
+        }
+
+        // Ação de Candidatar via WhatsApp com Dados do Currículo
+        function applyToJob(jobId) {
+            const job = jobsData.find(j => j.id === jobId);
+            if (!job) return;
+
+            if (!userCV) {
+                alert('⚠️ Por favor, preencha o seu Currículo antes de se candidatar para que a empresa receba seus dados de forma organizada!');
+                switchTab('curriculo');
+                return;
+            }
+
+            // Calcular estatísticas do Match para incluir na mensagem
+            const userSkills = userCV.habilidades || [];
+            const reqs = job.reqsChave || [];
+            let matches = 0;
+
+            reqs.forEach(req => {
+                if (userSkills.includes(req)) matches++;
+            });
+
+            const matchPct = reqs.length > 0 ? Math.round((matches / reqs.length) * 100) : 100;
+
+            // Formatar mensagem completa de candidatura
+            const textoMensagem = 
+`*CANDIDATURA VIA EMPREGACWB* 🚀
+----------------------------------------
+Olá! Gostaria de me candidatar à vaga de *${job.titulo}*.
+
+👤 *DADOS DO CANDIDATO:*
+• *Nome:* ${userCV.nome}
+• *Bairro:* ${userCV.bairro} (Curitiba)
+• *Área/Cargo:* ${userCV.cargo}
+• *Escolaridade:* ${userCV.escolaridade}
+
+📊 *COMPATIBILIDADE / MATCH DE REQUISITOS:*
+• *Pontuação de Match:* ${matchPct}% (${matches} de ${reqs.length} requisitos atendidos)
+• *Minhas Habilidades:* ${userCV.habilidades.join(', ')}
+
+💼 *EXPERIÊNCIA:*
+${userCV.experiencias}
+
+💬 *APRESENTAÇÃO:*
+${userCV.apresentacao || 'Disponível para entrevistas e início imediato.'}
+----------------------------------------
+_Candidatura enviada via EmpregaCWB_`;
+
+            const urlWhatsapp = `https://wa.me/${job.whatsapp}?text=${encodeURIComponent(textoMensagem)}`;
+            window.open(urlWhatsapp, '_blank');
+        }
+
+        // Renderizar Lista de Vagas com Sistema de Compatibilidade (Match)
+        function renderJobs() {
+            const container = document.getElementById('jobs-container');
+            const emptyState = document.getElementById('empty-state');
+            const searchInput = document.getElementById('search-input').value.toLowerCase().trim();
+            const jobCountEl = document.getElementById('job-count');
+
+            container.innerHTML = '';
+
+            const userSkills = userCV ? userCV.habilidades : [];
+
+            // Filtragem
+            const filteredJobs = jobsData.filter(job => {
+                if (currentFilter === 'clt' && job.tipo !== 'CLT') return false;
+                if (currentFilter === 'temp' && job.tipo !== 'Temporária / Freelancer') return false;
+                if (currentFilter === 'noturna' && !job.noturna) return false;
+
+                if (searchInput !== '') {
+                    const searchableContent = `${job.titulo} ${job.endereco} ${job.bairro} ${job.requisitos} ${job.atividades}`.toLowerCase();
+                    if (!searchableContent.includes(searchInput)) return false;
+                }
+
+                return true;
+            });
+
+            jobCountEl.textContent = `${filteredJobs.length} vaga(s) encontrada(s)`;
+
+            if (filteredJobs.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Gerar Cards
+            filteredJobs.forEach(job => {
+                const bairroNome = job.bairro || extractBairro(job.endereco);
+                const reqs = job.reqsChave || ["Atendimento ao Cliente"];
+                
+                // Cálculo de Compatibilidade (Match)
+                let matchedCount = 0;
+                const reqsHTML = reqs.map(req => {
+                    const hasSkill = userSkills.includes(req);
+                    if (hasSkill) matchedCount++;
+
+                    return hasSkill 
+                        ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-md font-bold text-[11px] inline-flex items-center gap-1">✅ ${req}</span>`
+                        : `<span class="bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] inline-flex items-center gap-1">❌ ${req}</span>`;
+                }).join(' ');
+
+                const matchPercent = reqs.length > 0 ? Math.round((matchedCount / reqs.length) * 100) : 100;
+                
+                // Cor da Badge de Match
+                let matchBadgeClass = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                if (matchPercent < 50) matchBadgeClass = "bg-amber-100 text-amber-800 border-amber-300";
+
+                const cardHTML = `
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+                        
+                        <div>
+                            <!-- Topo: Bairro, Tags e Match Badge -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <span class="bg-slate-100 text-slate-800 border border-slate-200 font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                    ${bairroNome}
+                                </span>
+
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    ${userCV ? `
+                                        <span class="${matchBadgeClass} border font-extrabold text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                                            🎯 ${matchPercent}% Match
+                                        </span>
+                                    ` : ''}
+                                    ${job.noturna ? `
+                                        <span class="bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                            🌙 Noturna
+                                        </span>
+                                    ` : ''}
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-slate-200">
+                                        ${job.tipo}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Título da Vaga -->
+                            <h3 class="text-lg font-black text-slate-800 group-hover:text-emerald-600 transition-colors mb-1">
+                                ${job.titulo}
+                            </h3>
+
+                            <!-- Endereço -->
+                            <p class="text-xs text-slate-500 mb-3 flex items-start gap-1">
+                                <i data-lucide="navigation" class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5"></i>
+                                <span>${job.endereco}</span>
+                            </p>
+
+                            <!-- Bloco do Match de Requisitos (Checks Verdes ✅) -->
+                            <div class="mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-1.5">
+                                    Compatibilidade com seu Currículo:
+                                </span>
+                                <div class="flex flex-wrap gap-1">
+                                    ${reqsHTML}
+                                </div>
+                            </div>
+
+                            <!-- Salário e Horário -->
+                            <div class="space-y-1.5 text-xs mb-4">
+                                <div class="flex items-start gap-2">
+                                    <i data-lucide="banknote" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <span class="font-bold text-slate-700">Salário:</span>
+                                        <span class="text-slate-600">${job.salario}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-teal-600 shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <span class="font-bold text-slate-700">Carga Horária:</span>
+                                        <span class="text-slate-600">${job.cargahoraria}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botão Candidatar -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <span class="text-[11px] text-slate-400 font-medium">${job.data}</span>
+                            
+                            <button onclick="applyToJob(${job.id})"
+                                class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs hover:shadow">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                Candidatar via WhatsApp
+                            </button>
+                        </div>
+
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+
+            lucide.createIcons();
+        }
+
+        // Cadastro de Nova Vaga pelo Recrutador
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const titulo = document.getElementById('form-titulo').value.trim();
+            const endereco = document.getElementById('form-endereco').value.trim();
+            const tipo = document.getElementById('form-tipo').value;
+            const noturna = document.getElementById('form-noturna').checked;
+            const cargahoraria = document.getElementById('form-cargahoraria').value.trim();
+            const salario = document.getElementById('form-salario').value.trim();
+            const requisitos = document.getElementById('form-requisitos').value.trim();
+            const atividades = document.getElementById('form-atividades').value.trim();
+            
+            let whatsapp = document.getElementById('form-whatsapp').value.replace(/\D/g, '');
+            if (!whatsapp.startsWith('55')) whatsapp = '55' + whatsapp;
+
+            const newJob = {
+                id: Date.now(),
+                titulo,
+                endereco,
+                bairro: extractBairro(endereco),
+                cargahoraria,
+                salario,
+                reqsChave: selectedJobReqs.length > 0 ? [...selectedJobReqs] : ["Atendimento ao Cliente"],
+                requisitos,
+                atividades,
+                tipo,
+                noturna,
+                whatsapp,
+                data: "Hoje"
+            };
+
+            jobsData.unshift(newJob);
+            document.getElementById('job-form').reset();
+            
+            alert('✅ Vaga publicada com sucesso em Curitiba!');
+            switchTab('vagas');
+            setFilter('todos');
+        }
+    </script>
+</body>
+</html>
